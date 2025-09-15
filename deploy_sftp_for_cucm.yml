@@ -13,15 +13,13 @@
     service_type: NodePort
     node_port: 30222
 
-    # Lock access to your UC cluster IPs only
+    # Lock access to UC cluster IPs only (CUCM + IM&P only; Unity removed)
     restrict_ingress: true
     allowed_uc_cidrs:
       - "10.1.128.14/32"   # CUCM Publisher
       - "10.1.128.15/32"   # CUCM Subscriber
       - "10.1.128.20/32"   # IM&P (Presence) Publisher
       - "10.1.128.21/32"   # IM&P (Presence) Subscriber
-      - "10.1.128.25/32"   # Unity Connection Publisher
-      - "10.1.128.26/32"   # Unity Connection Subscriber
 
   collections:
     - kubernetes.core
@@ -181,7 +179,7 @@
                 targetPort: 22
                 nodePort: "{{ node_port }}"
 
-    - name: Create NetworkPolicy to restrict SFTP to UC IPs
+    - name: Create NetworkPolicy to restrict SFTP to UC IPs (Unity removed)
       when: restrict_ingress
       kubernetes.core.k8s:
         state: present
@@ -202,8 +200,6 @@
                   - ipBlock: { cidr: "10.1.128.15/32" }
                   - ipBlock: { cidr: "10.1.128.20/32" }
                   - ipBlock: { cidr: "10.1.128.21/32" }
-                  - ipBlock: { cidr: "10.1.128.25/32" }
-                  - ipBlock: { cidr: "10.1.128.26/32" }
                 ports:
                   - protocol: TCP
                     port: 22
@@ -231,4 +227,4 @@
           - "SFTP dir      : /upload"
           - "Service type  : NodePort"
           - "Connect to    : $(minikube ip) on TCP {{ node_port }}"
-          - "In CUCM/IM&P/Unity DRS use: Host=$(minikube ip), Port={{ node_port }}, User=cucm, Dir=/upload"
+          - "In CUCM/IM&P DRS use: Host=$(minikube ip), Port={{ node_port }}, User=cucm, Dir=/upload"
